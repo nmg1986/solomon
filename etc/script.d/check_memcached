@@ -1,0 +1,16 @@
+#!/bin/bash
+##
+##check memcached is accessable.
+##if not return 1,else return 0
+####################################################################
+
+
+STATUS_OK=0
+STATUS_IS_NOT_OK=1
+
+
+if [ `/etc/init.d/memcached status | grep -c running` -eq 0 ];then
+	exit $STATUS_IS_NOT_OK
+else
+	exit $STATUS_OK
+fi
