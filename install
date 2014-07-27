@@ -1,0 +1,25 @@
+#!/bin/bash
+
+. /etc/rc.status
+
+echo -ne "Install Solomon Daemon"
+
+install -d  /usr/solomon
+install -d  /usr/solomon/bin
+install -d  /usr/solomon/sbin 
+install -d  /etc/solomon/conf.d
+install -d  /etc/solomon/script.d
+
+install bin/*   /usr/solomon/bin
+install sbin/cliofetion  /usr/solomon/sbin
+install sbin/solomon-init  /etc/init.d/solomon
+
+install etc/conf.d/*  /etc/solomon/conf.d
+install etc/script.d/* /etc/solomon/script.d
+
+install etc/solomon.conf /etc/solomon 
+
+ln -sf /etc/solomon/solomon.conf  /etc
+ln -sf /etc/init.d/solomon   /usr/sbin/rcsolomon
+
+rc_status -v
