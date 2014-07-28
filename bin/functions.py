@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os
 import commands
+import subprocess
 
 SCRIPT_DIR="/etc/solomon/script.d"
 
@@ -42,7 +43,6 @@ def get_command(basename):
 	return path 
 
 def service_failover():
-	import subprocess
 	fnull=open(os.devnull,'w')
 	if is_exist("/etc/init.d/heartbeat") and is_executable("/etc/init.d/heartbeat"):
 		subprocess.call(["/etc/init.d/heartbeat","restart"])
