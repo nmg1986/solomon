@@ -31,33 +31,65 @@ signal.signal(signal.SIGTERM,quit)
 logger.info("solomon start")
 time.sleep(10.0)
 
-while True:
-	for my_section in check_list:
-		if parser.has_option(my_section,"check_command"):
-			command_name=parser.get(my_section,"check_command")	
-			if len(command_name) != 0:
-				check_command=functions.absolute_path(command_name)
-				if functions.is_exist(check_command) and functions.is_executable(check_command):
-					status=functions.run(check_command)
-					if not status:
-						logger.warning(functions.strcat(my_section," ","is dead"))	
-						if sendemail.enabled == "true":
-							logger.info("Send Email")	
-							if sendemail.send_email(my_section):
-								logger.info("Email Send Success!")		
-							else:
-								logger.info("Email Send Failed!")
-						logger.info("Service Failover!")
-						functions.service_failover()
-					else:
-						logger.info(functions.strcat(my_section," ", "is ok"))	
-				else:
-					print functions.strcat(my_section,":","check command not exist or executabled")
-					exit(3)
-			else:
-				print functions.strcat(my_section,":","check command must be defined")
-				exit(2)
-		else:
-			print functions.strcat(my_section,":","check_command option must be defined")
-			exit(1)
-	time.sleep(float(globalconf.check_interval))
+for section in check_list:
+    if parser.has_option(section,"check_command"):
+        check_command=parser.get(section,"check_command")
+	if len(check_command):
+		logger.warning(functions.strcat(section,":","check command can not be null"))
+		continue
+	if not functions.is_exist(check_command) or not functions.is_executable(check_command):
+		logger.warning(functions.strcat(section,":","check command not exist or executabled"))
+		continue
+    else:
+	logger.warning(functions.strcat(section,":","check command is not defined"))
+	continue
+    if parser.has_option(section,"check_interval"):
+	check_interval=parser.get(section,"check_interval")
+    else:
+	check_interval=globalconf.check_interval
+    if parser.has_option(section,"retry_interval"):
+	retry_interval=parser.get(section,"retry_interval")
+    else:
+	retry_interval=globalconf.retry_interval
+    if parser.has_option(section,"retry_times"):
+	retry_times=parser.get(section,"retry_times")
+    else:
+	retry_times=globalconf.retry_times
+    if parser.has_option(section,"event_handler"):
+	event_handler=parser.get(section,"event_handler")
+    else:
+	event_handler=globalconf.event_handler
+
+    args=(check_command,check_interval,retry_interval,retry_times,event_handler)
+    main.do_check(section,*args)
+
+#while True:
+#	for my_section in check_list:
+#		if parser.has_option(my_section,"check_command"):
+#			command_name=parser.get(my_section,"check_command")	
+#			if len(command_name) != 0:
+#				check_command=functions.absolute_path(command_name)
+#				if functions.is_exist(check_command) and functions.is_executable(check_command):
+#					status=functions.run(check_command)
+#					if not status:
+#						logger.warning(functions.strcat(my_section," ","is dead"))	
+#						if sendemail.enabled == "true":
+#							logger.info("Send Email")	
+#							if sendemail.send_email(my_section):
+#								logger.info("Email Send Success!")		
+#							else:
+#								logger.info("Email Send Failed!")
+#						logger.info("Service Failover!")
+#						functions.service_failover()
+#					else:
+#						logger.info(functions.strcat(my_section," ", "is ok"))	
+#				else:
+#					print functions.strcat(my_section,":","check command not exist or executabled")
+#					exit(3)
+#			else:
+#				print functions.strcat(my_section,":","check command must be defined")
+#				exit(2)
+#		else:
+#			print functions.strcat(my_section,":","check_command option must be defined")
+#			exit(1)
+#	time.sleep(float(globalconf.check_interval))
